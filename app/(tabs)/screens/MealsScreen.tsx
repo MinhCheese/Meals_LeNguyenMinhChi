@@ -1,8 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-const CATEGORIES = [
+type Category = {
+  id: string;
+  title: string;
+  imageUrl: string;
+};
+
+type Meal = {
+  id: string;
+  title: string;
+  imageUrl: string;
+};
+
+type RootStackParamList = {
+  MealsScreen: { categoryId: string };
+  MealDetail: { mealId: string };
+};
+
+const CATEGORIES: Category[] = [
   { id: '1', title: 'Italian', imageUrl: 'https://via.placeholder.com/150' },
   { id: '2', title: 'Quick & Easy', imageUrl: 'https://via.placeholder.com/150' },
   { id: '3', title: 'Hamburgers', imageUrl: 'https://via.placeholder.com/150' },
@@ -11,7 +29,7 @@ const CATEGORIES = [
   { id: '6', title: 'Exotic', imageUrl: 'https://via.placeholder.com/150' },  
 ];
 
-const MEALS = {
+const MEALS: Record<string, Meal[]> = {
   '1': [
     { id: 'm1', title: 'Spaghetti Carbonara', imageUrl: 'https://static01.nyt.com/images/2021/02/14/dining/carbonara-horizontal/carbonara-horizontal-square640-v2.jpg' },
     { id: 'm2', title: 'Margherita Pizza', imageUrl: 'https://images.prismic.io/eataly-us/ed3fcec7-7994-426d-a5e4-a24be5a95afd_pizza-recipe-main.jpg?auto=compress,format' },
@@ -51,22 +69,22 @@ const MEALS = {
 };
 
 const MealsScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
-  const { categoryId } = route.params as { categoryId: string };
+  const route = useRoute<RouteProp<RootStackParamList, 'MealsScreen'>>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { categoryId } = route.params;
 
   const selectedCategory = CATEGORIES.find(cat => cat.id === categoryId);
 
   const meals = MEALS[categoryId] || [];
 
-  const renderMealItem = (itemData:any) => {
+  const renderMealItem = ({ item }: { item: Meal }) => {
     return (
       <TouchableOpacity
         style={styles.mealItem}
-        onPress={() => navigation.navigate('MealDetail', { mealId: itemData.item.id })}
+        onPress={() => navigation.navigate('MealDetail', { mealId: item.id })}
       >
-        <Image source={{ uri: itemData.item.imageUrl }} style={styles.image} />
-        <Text style={styles.title}>{itemData.item.title}</Text>
+        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        <Text style={styles.title}>{item.title}</Text>
       </TouchableOpacity>
     );
   };

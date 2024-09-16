@@ -2,8 +2,24 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRoute } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 
-const MEALS = {
+// Định nghĩa kiểu dữ liệu cho một món ăn
+interface Meal {
+  id: string;
+  title: string;
+  imageUrl: string;
+}
+
+// Định nghĩa kiểu dữ liệu cho tham số của route
+type RootStackParamList = {
+  MealDetail: { mealId: string };
+};
+
+// Định nghĩa kiểu dữ liệu cho route prop
+type MealDetailRouteProp = RouteProp<RootStackParamList, 'MealDetail'>;
+
+const MEALS: Record<string, Meal[]> = {
   '1': [
     { id: 'm1', title: 'Spaghetti Carbonara', imageUrl: 'https://static01.nyt.com/images/2021/02/14/dining/carbonara-horizontal/carbonara-horizontal-square640-v2.jpg' },
     { id: 'm2', title: 'Margherita Pizza', imageUrl: 'https://images.prismic.io/eataly-us/ed3fcec7-7994-426d-a5e4-a24be5a95afd_pizza-recipe-main.jpg?auto=compress,format' },
@@ -42,19 +58,20 @@ const MEALS = {
   ],
 };
 
-const MealDetailScreen = () => {
-  const route = useRoute();
+// Định nghĩa kiểu dữ liệu cho component
+const MealDetailScreen: React.FC = () => {
+  const route = useRoute<MealDetailRouteProp>();
   const { mealId } = route.params;
 
   // Tìm danh mục chứa món ăn
-  let meal;
+  let meal: Meal | undefined;
   for (const key in MEALS) {
     const categoryMeals = MEALS[key];
     meal = categoryMeals.find((m) => m.id === mealId);
     if (meal) break;  // Dừng vòng lặp khi tìm thấy món ăn
   }
 
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   const toggleFavorite = () => {
     setIsFavorite((prevState) => !prevState);
