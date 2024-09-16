@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const CATEGORIES = [
   { id: '1', title: 'Italian', imageUrl: 'https://via.placeholder.com/150' },
@@ -11,13 +11,12 @@ const CATEGORIES = [
   { id: '6', title: 'Exotic', imageUrl: 'https://via.placeholder.com/150' },  
 ];
 
-// Dữ liệu món ăn
 const MEALS = {
   '1': [
     { id: 'm1', title: 'Spaghetti Carbonara', imageUrl: 'https://static01.nyt.com/images/2021/02/14/dining/carbonara-horizontal/carbonara-horizontal-square640-v2.jpg' },
     { id: 'm2', title: 'Margherita Pizza', imageUrl: 'https://images.prismic.io/eataly-us/ed3fcec7-7994-426d-a5e4-a24be5a95afd_pizza-recipe-main.jpg?auto=compress,format' },
     { id: 'm3', title: 'Lasagna', imageUrl: 'https://beptruong.edu.vn/wp-content/uploads/2017/12/lasagna-truyen-thong-600x400.jpg' },
-    { id: 'm4', title: 'Fettuccine Alfredo', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgfJFj0J6yrAHoZrFbv-0uBPetW8iDomwOtg&shttps://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZAJOYQWQgsA9JM2Ec_yw9MJwHYXBc6B3OmQ&s' },
+    { id: 'm4', title: 'Fettuccine Alfredo', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgfJFj0J6yrAHoZrFbv-0uBPetW8iDomwOtg&s' },
   ],
   '2': [
     { id: 'm5', title: 'Quick Tacos', imageUrl: 'https://gimmedelicious.com/wp-content/uploads/2019/01/Quick-Chicken-Tacos-food-truck-style-9.jpg' },
@@ -51,33 +50,32 @@ const MEALS = {
   ],
 };
 
-
 const MealsScreen = () => {
   const route = useRoute();
+  const navigation = useNavigation();
   const { categoryId } = route.params as { categoryId: string };
 
-  // Lấy danh mục dựa trên categoryId
   const selectedCategory = CATEGORIES.find(cat => cat.id === categoryId);
 
-  // Lấy danh sách món ăn dựa trên categoryId
   const meals = MEALS[categoryId] || [];
 
-  const renderMealItem = (itemData: { item: { id: string; title: string; imageUrl: string } }) => {
+  const renderMealItem = (itemData:any) => {
     return (
-      <View style={styles.mealItem}>
+      <TouchableOpacity
+        style={styles.mealItem}
+        onPress={() => navigation.navigate('MealDetail', { mealId: itemData.item.id })}
+      >
         <Image source={{ uri: itemData.item.imageUrl }} style={styles.image} />
         <Text style={styles.title}>{itemData.item.title}</Text>
-      </View>
+      </TouchableOpacity>
     );
   };
 
   return (
     <View style={styles.screen}>
-      {/* Hiển thị categoryId và tên danh mục */}
       <Text style={styles.categoryInfo}>Category ID: {categoryId}</Text>
       <Text style={styles.categoryTitle}>{selectedCategory?.title}</Text>
       
-      {/* Hiển thị danh sách món ăn */}
       <FlatList
         data={meals}
         keyExtractor={(item) => item.id}
@@ -98,25 +96,26 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   categoryTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   mealItem: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: '#f5f5f5',
+    marginBottom: 15,
     borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
+    elevation: 5,
   },
   image: {
     width: '100%',
-    height: 300,
-    borderRadius: 10,
+    height: 200,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 10,
+    textAlign: 'center',
+    marginVertical: 10,
   },
 });
 
