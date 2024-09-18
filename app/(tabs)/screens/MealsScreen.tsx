@@ -91,7 +91,7 @@ const MealsScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <Text style={styles.categoryInfo}>Category ID: {categoryId}</Text>
+      
       <Text style={styles.categoryTitle}>{selectedCategory?.title}</Text>
       
       <FlatList

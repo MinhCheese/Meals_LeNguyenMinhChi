@@ -1,8 +1,6 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CategoriesScreen from './screens/CategoriesScreen';
@@ -10,15 +8,11 @@ import MealsScreen from './screens/MealsScreen';
 import MealDetailScreen from './screens/MealDetailScreen';
 import FavoritesScreen from './screens/FavoritesScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import { FavoritesProvider } from './screens/FavoritesContext';
 
 // Khởi tạo Stack Navigator
+import { createStackNavigator } from '@react-navigation/stack';
 const Stack = createStackNavigator();
-
-// Khởi tạo Tab Navigator
-const Tabs = createBottomTabNavigator();
-
-// Khởi tạo Drawer Navigator
-const Drawer = createDrawerNavigator();
 
 // Navigator cho các món ăn (dùng Stack Navigator)
 const MealsNavigator = () => {
@@ -31,48 +25,51 @@ const MealsNavigator = () => {
   );
 };
 
-// Navigator cho Drawer
-const DrawerNavigator = () => {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="Meals" component={MealsNavigator} />
-      <Drawer.Screen name="Favorites" component={FavoritesScreen} />
-      <Drawer.Screen name="Settings" component={SettingsScreen} />
-    </Drawer.Navigator>
-  );
-};
+// Khởi tạo Tab Navigator
+const Tabs = createBottomTabNavigator();
 
-// Navigator chính dùng Tabs
 const TabNavigator = () => {
   return (
     <Tabs.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          let iconName: string;
-          if (route.name === 'Home') {
-            iconName = 'home';
-          } else if (route.name === 'Favorites') {
-            iconName = 'heart';
-          } else if (route.name === 'Settings') {
-            iconName = 'settings';
-          }
+      screenOptions={({ route }) => {
+        let iconName: string;
 
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-      })}
+        switch (route.name) {
+          case 'Home':
+            iconName = 'home';
+            break;
+          case 'Favorites':
+            iconName = 'heart';
+            break;
+          case 'Settings':
+            iconName = 'settings';
+            break;
+          default:
+            iconName = 'information-circle'; // Giá trị mặc định nếu không khớp với bất kỳ tên nào
+        }
+
+        return {
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name={iconName} size={size} color={color} />
+          ),
+        };
+      }}
     >
-      <Tabs.Screen name="Home" component={DrawerNavigator} options={{ title: 'Home' }} />
+      <Tabs.Screen name="Home" component={MealsNavigator} options={{ title: 'Home' }} />
       <Tabs.Screen name="Favorites" component={FavoritesScreen} options={{ title: 'Favorites' }} />
       <Tabs.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
     </Tabs.Navigator>
   );
 };
 
-// Hàm chính
-export default function App() {
+const App = () => {
   return (
     <NavigationContainer independent={true}>
-      <TabNavigator />
+      <FavoritesProvider>  
+        <TabNavigator />
+      </FavoritesProvider>
     </NavigationContainer>
   );
-}
+};
+
+export default App;

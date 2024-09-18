@@ -1,22 +1,21 @@
-import React, { useState } from 'react';
+// MealDetailScreen.tsx
+import React, { useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRoute } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
+import FavoritesContext from './FavoritesContext';
 
-// Định nghĩa kiểu dữ liệu cho một món ăn
 interface Meal {
   id: string;
   title: string;
   imageUrl: string;
 }
 
-// Định nghĩa kiểu dữ liệu cho tham số của route
 type RootStackParamList = {
   MealDetail: { mealId: string };
 };
 
-// Định nghĩa kiểu dữ liệu cho route prop
 type MealDetailRouteProp = RouteProp<RootStackParamList, 'MealDetail'>;
 
 const MEALS: Record<string, Meal[]> = {
@@ -58,23 +57,22 @@ const MEALS: Record<string, Meal[]> = {
   ],
 };
 
-// Định nghĩa kiểu dữ liệu cho component
 const MealDetailScreen: React.FC = () => {
   const route = useRoute<MealDetailRouteProp>();
   const { mealId } = route.params;
 
-  // Tìm danh mục chứa món ăn
   let meal: Meal | undefined;
   for (const key in MEALS) {
     const categoryMeals = MEALS[key];
     meal = categoryMeals.find((m) => m.id === mealId);
-    if (meal) break;  // Dừng vòng lặp khi tìm thấy món ăn
+    if (meal) break;
   }
 
-  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const { favoriteMeals, toggleFavorite } = useContext(FavoritesContext);
+  const isFavorite = favoriteMeals.includes(mealId);
 
-  const toggleFavorite = () => {
-    setIsFavorite((prevState) => !prevState);
+  const handleToggleFavorite = () => {
+    toggleFavorite(mealId);
   };
 
   return (
@@ -83,7 +81,7 @@ const MealDetailScreen: React.FC = () => {
         <>
           <Image source={{ uri: meal.imageUrl }} style={styles.image} />
           <Text style={styles.title}>{meal.title}</Text>
-          <TouchableOpacity onPress={toggleFavorite} style={styles.favoriteButton}>
+          <TouchableOpacity onPress={handleToggleFavorite} style={styles.favoriteButton}>
             <Icon
               name={isFavorite ? 'heart' : 'heart-outline'}
               size={30}
